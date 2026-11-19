@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import TenantLanding from "@/components/TenantLanding";
-import { tattooShopConfig } from "@/data/tattooShop";
+import { bunkerTattooConfig } from "@/data/bunkerTattoo";
 
+// ─── SSG: metadata se genera desde el config del tenant ──────────────────────
 export const metadata: Metadata = {
-  title: tattooShopConfig.seo.title,
-  description: tattooShopConfig.seo.description,
+  title: bunkerTattooConfig.seo.title,
+  description: bunkerTattooConfig.seo.description,
   openGraph: {
-    title: tattooShopConfig.seo.title,
-    description: tattooShopConfig.seo.description,
-    ...(tattooShopConfig.seo.ogImage && { images: [tattooShopConfig.seo.ogImage] }),
+    title: bunkerTattooConfig.seo.title,
+    description: bunkerTattooConfig.seo.description,
+    ...(bunkerTattooConfig.seo.ogImage && { images: [bunkerTattooConfig.seo.ogImage] }),
   },
 };
 
 export default function Home() {
-  return <TenantLanding config={tattooShopConfig} />;
+  return <TenantLanding config={bunkerTattooConfig} />;
 }

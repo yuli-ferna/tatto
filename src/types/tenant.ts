@@ -1,4 +1,4 @@
-// ─── Primitivos ───────────────────────────────────────────────────────────────
+// ─── Primitives ───────────────────────────────────────────────────────────────
 
 export interface SocialLink {
   label: string;
@@ -11,6 +11,15 @@ export interface GalleryItem {
   alt: string;
   category: string;
   artist?: string;
+  /** Short handwritten caption (bunker polaroids). Falls back to category. */
+  caption?: string;
+}
+
+/** Studio / ambience photo with a handwritten caption (bunker template). */
+export interface StudioPhoto {
+  src: string;
+  alt: string;
+  caption: string;
 }
 
 export interface Artist {
@@ -19,6 +28,13 @@ export interface Artist {
   bio: string;
   avatar: string;
   specialties: string[];
+  /** Starting price shown in bunker artist card, e.g. "$150" */
+  priceFrom?: string;
+  /** Availability hint shown in bunker artist card, e.g. "Limited" */
+  availability?: string;
+  instagramUrl?: string;
+  /** Text for the artist link button, e.g. "@jaret.rood" or "Ver portfolio". */
+  linkLabel?: string;
 }
 
 export interface Testimonial {
@@ -27,46 +43,38 @@ export interface Testimonial {
   rating?: number;
 }
 
-// ─── Capa 1: Design tokens semánticos ────────────────────────────────────────
+// ─── Layer 1: Semantic design tokens ─────────────────────────────────────────
+// Components never reference raw color names — only semantic token names.
 
 export interface DesignTokens {
-  // Superficies
   surface: string;
   surfaceRaised: string;
   surfaceOverlay: string;
-
-  // Texto
   textHeading: string;
   textBody: string;
   textSubtle: string;
   textInverse: string;
-
-  // Interacción
   interactive: string;
   interactiveHover: string;
   interactiveFg: string;
-
-  // Decoración
   decorative: string;
   border: string;
   borderStrong: string;
-
-  // Tipografía (Google Fonts URL-encoded)
-  fontDisplay: string;
-  fontBody: string;
-  fontDisplayFamily: string; // nombre CSS, e.g. "Bebas Neue"
-  fontBodyFamily: string;    // nombre CSS, e.g. "DM Sans"
+  fontDisplay: string;        // Google Fonts URL-encoded name
+  fontBody: string;           // Google Fonts URL-encoded name
+  fontDisplayFamily: string;  // CSS family name
+  fontBodyFamily: string;     // CSS family name
 }
 
-// ─── Capa 2: Estilos de componentes ──────────────────────────────────────────
+// ─── Layer 2: Component style controls ───────────────────────────────────────
 
 export interface ButtonStyle {
   /**
-   * "angular"   → clip-path diagonal
-   * "rounded"   → border-radius full (pill)
-   * "square"    → sin radius
-   * "outline"   → sin fill, solo borde
-   * "underline" → solo texto + línea animada
+   * "angular"   — diagonal clip-path corners
+   * "rounded"   — full pill border-radius
+   * "square"    — no border-radius
+   * "outline"   — transparent fill, colored border
+   * "underline" — text only with animated underline
    */
   variant: "angular" | "rounded" | "square" | "outline" | "underline";
   uppercase: boolean;
@@ -75,29 +83,30 @@ export interface ButtonStyle {
 
 export interface NavbarStyle {
   /**
-   * "overlay"  → transparente al inicio, oscurece al scroll
-   * "solid"    → siempre con fondo
-   * "minimal"  → siempre transparente
+   * "overlay"  — transparent on load, darkens on scroll
+   * "solid"    — always has background
+   * "minimal"  — always transparent
+   * "tabs"     — book-tab style (used by bunker template)
    */
-  variant: "overlay" | "solid" | "minimal";
+  variant: "overlay" | "solid" | "minimal" | "tabs";
   logoSize: "sm" | "md" | "lg";
 }
 
-// ─── Capa 3: Variantes de secciones ──────────────────────────────────────────
+// ─── Layer 3: Section variants ────────────────────────────────────────────────
 
 export type HeroVariant =
-  | "cinematic"  // texto abajo izquierda + bloque decorativo
-  | "editorial"  // tipografía dominante centrada vertical
-  | "split"      // mitad imagen, mitad texto
-  | "minimal";   // solo texto, mucho espacio, sin decoraciones
+  | "cinematic"   // full-bleed image, large text overlay
+  | "editorial"   // two-column, dominant typography
+  | "split"       // half image, half text
+  | "minimal";    // text only, generous whitespace
 
 export type GalleryVariant =
-  | "masonry"           // grid con aspect ratios mixtos
-  | "grid"              // grid uniforme cuadrado
-  | "horizontal-scroll" // carrusel
-  | "featured";         // una foto grande + grilla secundaria
+  | "masonry"            // mixed aspect-ratio grid
+  | "grid"               // uniform square grid
+  | "horizontal-scroll"  // horizontal carousel
+  | "featured";          // one large photo + secondary grid
 
-// ─── Capa 4: Secciones y su orden ────────────────────────────────────────────
+// ─── Layer 4: Sections and their order ───────────────────────────────────────
 
 export type SectionId = "gallery" | "artists" | "testimonials" | "contact";
 
@@ -105,10 +114,11 @@ export interface SectionsConfig {
   showMarquee: boolean;
   showArtists: boolean;
   showTestimonials: boolean;
+  /** Render order. Only enabled sections appear. */
   order: SectionId[];
 }
 
-// ─── Capa 5: Efectos visuales ─────────────────────────────────────────────────
+// ─── Layer 5: Visual effects ──────────────────────────────────────────────────
 
 export interface VisualEffects {
   grainOpacity: number;
@@ -118,7 +128,11 @@ export interface VisualEffects {
   separatorStyle: "line" | "dot" | "accent-bar" | "none";
 }
 
-// ─── TenantConfig completo ────────────────────────────────────────────────────
+// ─── Template selector ────────────────────────────────────────────────────────
+
+export type TemplateName = "ink" | "editorial" | "minimal" | "bunker";
+
+// ─── Full TenantConfig ────────────────────────────────────────────────────────
 
 export interface TenantConfig {
   name: string;
@@ -127,6 +141,30 @@ export interface TenantConfig {
   location: string;
   contactCta: string;
   contactCtaUrl: string;
+
+  /** Logo path in /public. Falls back to name text. */
+  logo?: string;
+
+  /**
+   * Full-bleed hero background image.
+   * Required by the "bunker" template — set to a high-res photo in /public.
+   */
+  heroImage?: string;
+
+  /** Alternate logo (e.g. circular badge) used in the footer. */
+  logoAlt?: string;
+
+  /** WhatsApp number in international format, digits only, e.g. "5491173654199". */
+  whatsapp?: string;
+  /** Opening hours line shown in the footer. */
+  hours?: string;
+  /** Street address shown in the footer. */
+  address?: string;
+  /** Words for the scrolling marquee ribbon. */
+  marqueeItems?: string[];
+  /** Ambience photos of the studio (bunker template). */
+  studioPhotos?: StudioPhoto[];
+
   socials: SocialLink[];
   gallery: GalleryItem[];
   artists: Artist[];
@@ -144,6 +182,9 @@ export interface TenantConfig {
 
   sections: SectionsConfig;
   effects: VisualEffects;
+
+  /** Controls the overall layout personality. */
+  template: TemplateName;
 
   seo: {
     title: string;
